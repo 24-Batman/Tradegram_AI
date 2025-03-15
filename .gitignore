@@ -1,0 +1,8 @@
+.qodo
+
+# Config files
+
+__pycache__/
+*.py[cod]
+.env
+venv/
