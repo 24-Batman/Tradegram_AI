@@ -1,6 +1,5 @@
 from typing import Dict, Any, Optional
 import logging
-import asyncio
 from datetime import datetime
 from .models import TradeAnalysis, MarketData, SentimentAnalysis
 from ai_model.sentiment_analysis import SentimentAnalyzer

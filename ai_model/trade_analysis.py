@@ -1,10 +1,8 @@
 import logging
-import numpy as np
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, List, Optional
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 import torch
-import torch.nn as nn
 from agent.models import MarketData, TradingSignal
 
 logger = logging.getLogger(__name__)
@@ -24,31 +22,18 @@ class TradeAnalyzer:
             'BB': self._calculate_bollinger_bands
         }
 
-    async def analyze_pattern(self, market_data: MarketData) -> Dict[str, Any]:
+    async def analyze_pattern(self, market_data: MarketData) -> Optional[Dict[str, Any]]:
         """Analyze trading patterns from market data"""
         try:
-            # Convert market data to DataFrame for analysis
-            df = self._prepare_data(market_data)
-            
-            # Calculate technical indicators
-            indicators = self._calculate_indicators(df)
-            
-            # Analyze patterns
-            patterns = self._detect_patterns(df, indicators)
-            
-            # Generate trading signals
-            signals = await self.generate_signals(patterns)
-            
+            # For now, return basic market data
             return {
-                'price': market_data.price,
-                'change_24h': market_data.change_24h,
-                'volume': market_data.volume,
-                'indicators': indicators,
-                'patterns': patterns,
-                'signals': signals,
-                'trend': self._determine_trend(patterns)
+                "price": market_data.price,
+                "change_24h": market_data.change_24h,
+                "volume": market_data.volume,
+                "patterns": [],  # Add actual pattern detection here
+                "signals": [],   # Add actual signals here
+                "trend": "neutral"
             }
-
         except Exception as e:
             logger.error(f"Error in pattern analysis: {str(e)}")
             return None

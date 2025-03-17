@@ -16,7 +16,7 @@ class MarketAnalysisRequest(BaseModel):
 class TradeSignalRequest(BaseModel):
     symbol: str
     amount: float = Field(..., gt=0)
-    side: str = Field(..., regex="^(buy|sell)$")
+    side: str = Field(..., pattern="^(buy|sell)$")
 
 @router.post("/analyze/market", response_model=Dict[str, Any])
 async def analyze_market(request: MarketAnalysisRequest):

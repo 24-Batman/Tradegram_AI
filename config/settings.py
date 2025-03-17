@@ -18,11 +18,20 @@ LOGS_DIR.mkdir(parents=True, exist_ok=True)
 class Settings(BaseSettings):
     """Application settings with environment variable support"""
     
+    # Bot Configuration
+    BOT_TOKEN: str = "8129150496:AAH-ELTfrKBCRHKMdAyAU-fgL_UNtfABkrA"
+    
     # API Configuration
-    API_BASE_URL: str = "https://api.openserv.ai"
+    API_BASE_URL_KRAKEN: str = "https://api.kraken.com/0"
+    API_BASE_URL_OPENSERV: str = "https://api.openserv.ai"
     PORT: int = 5500
     REQUEST_TIMEOUT: int = 30
     MAX_RETRIES: int = 3
+    
+    # WebSocket Configuration
+    WEBSOCKET_URL: str = "wss://ws.kraken.com"
+    RECONNECT_DELAY: int = 5
+    MAX_RECONNECT_DELAY: int = 60
     
     # API Keys
     OPENSERV_API_KEY: str
@@ -45,6 +54,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = True
+        extra = "allow"  # Allow extra fields in the settings
 
 @lru_cache()
 def get_settings() -> Settings:

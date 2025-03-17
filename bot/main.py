@@ -1,38 +1,24 @@
-import asyncio
-import logging
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, Update
-from config import BOT_TOKEN
-from commands import start_command, help_command, market_command, sentiment_command, snipe_command, report_command
-from handlers import message_handler, error_handler
-from utils import setup_logging
+import os
+from telegram import Update
+from telegram.ext import ApplicationBuilder, CommandHandler, CallbackContext
+from .commands import *
 
-logger = logging.getLogger(__name__)
+# Load the bot token from the .env file
+BOT_TOKEN = os.getenv("BOT_TOKEN")
 
-async def main():
-    """Initialize and start the bot"""
-    setup_logging()
-    logger.info("Starting TradeMateAI bot...")
 
-    # Initialize bot application
-    application = Application.builder().token(BOT_TOKEN).build()
 
-    # Add command handlers
+def main() -> None:
+    application = ApplicationBuilder().token(BOT_TOKEN).build()
+
     application.add_handler(CommandHandler("start", start_command))
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("market", market_command))
     application.add_handler(CommandHandler("sentiment", sentiment_command))
-    application.add_handler(CommandHandler("snipe", snipe_command))
-    application.add_handler(CommandHandler("report", report_command))
+    application.add_handler(CommandHandler("trade", trade_command))
+    application.add_handler(CommandHandler("settings", settings_command))
 
-    # Add message handler
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, message_handler))
-
-    # Add error handler
-    application.add_error_handler(error_handler)
-
-    # Start the bot
-    logger.info("Bot started successfully!")
-    await application.run_polling(allowed_updates=Update.ALL_TYPES)
+    application.run_polling()
 
 if __name__ == '__main__':
-    asyncio.run(main()) 
+    main()

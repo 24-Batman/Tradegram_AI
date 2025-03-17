@@ -1,9 +1,7 @@
 import logging
-import numpy as np
-from typing import Dict, Any, Optional
 import torch
+from typing import Dict, Any, List
 from transformers import pipeline
-from .model import TradingModel
 from agent.models import SentimentType
 
 logger = logging.getLogger(__name__)
@@ -12,12 +10,11 @@ class SentimentAnalyzer:
     def __init__(self):
         """Initialize sentiment analysis components"""
         self.model = None
-        self._initialize_model()
-        
-    def _initialize_model(self):
-        """Initialize the sentiment analysis pipeline"""
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    async def initialize(self):
+        """Load the FinBERT model asynchronously"""
         try:
-            # Using FinBERT for financial sentiment analysis
             self.model = pipeline(
                 "sentiment-analysis",
                 model="ProsusAI/finbert",
@@ -28,36 +25,49 @@ class SentimentAnalyzer:
             logger.error(f"Error initializing sentiment model: {str(e)}")
             raise
 
-    async def analyze(self, text: str) -> Dict[str, Any]:
-        """Analyze sentiment of market-related text"""
+    async def analyze(self, texts: List[str]) -> List[Dict[str, Any]]:
+        """Analyze sentiment of a list of texts"""
         try:
-            # Perform sentiment analysis
-            result = self.model(text)[0]
-            sentiment_label = result['label']
-            confidence = result['score']
+            if not self.model:
+                await self.initialize()
 
-            # Map sentiment labels to SentimentType
+            # Ensure input is a list (single string wrapped in a list)
+            if isinstance(texts, str):
+                texts = [texts]
+
+            # Process in chunks if text is too long
+            results = self.model(texts)
+
+            # Convert results into structured response
             sentiment_mapping = {
                 'positive': SentimentType.POSITIVE,
                 'negative': SentimentType.NEGATIVE,
                 'neutral': SentimentType.NEUTRAL
             }
 
-            return {
-                'sentiment': sentiment_mapping.get(sentiment_label.lower(), SentimentType.NEUTRAL),
-                'confidence': confidence,
-                'sources': ['FinBERT Analysis'],
-                'raw_score': self._normalize_sentiment_score(confidence, sentiment_label)
-            }
+            return [
+                {
+                    'text': text,
+                    'sentiment': sentiment_mapping.get(res['label'].lower(), SentimentType.NEUTRAL),
+                    'confidence': res['score'],
+                    'sources': ['FinBERT Analysis'],
+                    'raw_score': self._normalize_sentiment_score(res['score'], res['label'])
+                }
+                for text, res in zip(texts, results)
+            ]
 
         except Exception as e:
             logger.error(f"Error in sentiment analysis: {str(e)}")
-            return {
-                'sentiment': SentimentType.NEUTRAL,
-                'confidence': 0.0,
-                'sources': [],
-                'raw_score': 0.0
-            }
+            return [
+                {
+                    'text': text,
+                    'sentiment': SentimentType.NEUTRAL,
+                    'confidence': 0.0,
+                    'sources': [],
+                    'raw_score': 0.0
+                }
+                for text in texts
+            ]
 
     def _normalize_sentiment_score(self, confidence: float, label: str) -> float:
         """Normalize sentiment score to range [-1, 1]"""
@@ -65,4 +75,4 @@ class SentimentAnalyzer:
             return -confidence
         elif label.lower() == 'positive':
             return confidence
-        return 0.0 
+        return 0.0
