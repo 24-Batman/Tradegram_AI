@@ -1,4 +1,4 @@
-# TradeMateAI 🤖
+# TradeGramAI 🤖
 
 TradeMateAI is an intelligent cryptocurrency trading assistant that provides **market analysis, trading signals, and sentiment analysis** through a Telegram bot interface.
 
@@ -161,7 +161,7 @@ This bot is for **educational and research purposes only**. Always do your own r
 
 ---
 
-🚀 **Enjoy using TradeMateAI!**  
+🚀 **Enjoy using TradeGramAI!**  
 ```
 
 This README provides:  
