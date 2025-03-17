@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from telegram.ext import Application, CommandHandler, MessageHandler, filters
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, Update
 from config import BOT_TOKEN
 from commands import start_command, help_command, market_command, sentiment_command, snipe_command, report_command
 from handlers import message_handler, error_handler
